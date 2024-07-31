@@ -1,5 +1,3 @@
-// "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=0&longitude=0"
-
 import { useEffect, useState } from "react";
 
 import styles from "./Form.module.css";
@@ -43,10 +41,7 @@ function Form() {
           const res = await fetch(
             `${BASE_URL}?latitude=${lat}&longitude=${lng}`
           );
-          // const res = await fetch(
-          //   `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}`
-          // );
-          // if (!res.ok) throw new Error("there is error");
+
           const data = await res.json();
           console.log(data);
           if (!data.countryCode)
@@ -71,6 +66,7 @@ function Form() {
     e.preventDefault();
     if (!cityName || !date) return;
     const newCity = {
+      id: crypto.randomUUID().toString().slice(0, 5),
       cityName,
       country,
       emoji,
@@ -104,11 +100,7 @@ function Form() {
 
       <div className={styles.row}>
         <label htmlFor="date">When did you go to {cityName}?</label>
-        {/* <input
-          id="date"
-          onChange={(e) => setDate(e.target.value)}
-          value={date}
-        /> */}
+
         <DatePicker
           id="date"
           selected={date}

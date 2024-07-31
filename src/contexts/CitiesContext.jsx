@@ -5,7 +5,7 @@ import {
   useEffect,
   useReducer,
 } from "react";
-const BASE_URL = "http://localhost:8000";
+import { supabase } from "../services/supabase";
 const CitiesContxt = createContext();
 const initialState = {
   cities: [],
@@ -30,11 +30,12 @@ function reducer(state, action) {
       return { ...state, isLoading: false, currentCity: action.payload };
 
     case "city/created":
+      // console.log(action.payload);
       return {
         ...state,
         isLoading: false,
-        cities: [...state.cities, action.payload],
-        currentCity: action.payload,
+        cities: [...state.cities, action.payload.at(0)],
+        currentCity: action.payload.at(0),
       };
 
     case "city/deleted":
@@ -62,16 +63,14 @@ function CitiesProvider({ children }) {
     reducer,
     initialState
   );
-  // const [cities, setCities] = useState([]);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [currentCity, setCurrentCity] = useState({});
 
   useEffect(function () {
     async function fetchCities() {
       dispatch({ type: "loading" });
       try {
-        const res = await fetch(`${BASE_URL}/cities`);
-        const data = await res.json();
+        const { data } = await supabase.from("cities").select("*");
+
+        // const data = await res.json();
         dispatch({ type: "cities/loaded", payload: data });
       } catch {
         dispatch({
@@ -89,10 +88,11 @@ function CitiesProvider({ children }) {
         if (Number(id) === currentCity.id) return;
         dispatch({ type: "loading" });
         try {
-          const res = await fetch(`${BASE_URL}/cities/${id}`);
-          const data = await res.json();
-          // console.log(data);
-          dispatch({ type: "city/loaded", payload: data });
+          const { data } = await supabase
+            .from("cities")
+            .select("*")
+            .eq("id", id);
+          dispatch({ type: "city/loaded", payload: data.at(0) });
         } catch {
           console.log("errr");
           dispatch({
@@ -110,14 +110,13 @@ function CitiesProvider({ children }) {
     async function get() {
       dispatch({ type: "loading" });
       try {
-        const res = await fetch(`${BASE_URL}/cities`, {
-          method: "POST",
-          body: JSON.stringify(newCity),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const data = await res.json();
+        console.log(newCity);
+        const { id, cityName, country, emoji, date, note, position } = newCity;
+        const { data, error } = await supabase
+          .from("cities")
+          .insert([{ id, cityName, country, emoji, date, note, position }])
+          .select();
+        if (error) console.log(error);
         dispatch({ type: "city/created", payload: data });
       } catch {
         console.log("errr7");
@@ -134,9 +133,9 @@ function CitiesProvider({ children }) {
     async function get() {
       dispatch({ type: "loading" });
       try {
-        await fetch(`${BASE_URL}/cities/${id}`, {
-          method: "DELETE",
-        });
+        const { error } = await supabase.from("cities").delete().eq("id", id);
+        if (error) throw new Error(error);
+
         dispatch({ type: "city/deleted", payload: id });
       } catch {
         dispatch({

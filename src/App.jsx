@@ -48,6 +48,7 @@ function App() {
   //   }
   //   fetchCities();
   // }, []);
+
   return (
     <AuthProvider>
       <CitiesProvider>

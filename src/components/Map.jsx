@@ -56,7 +56,7 @@ function Map() {
         />
         {cities.map((city) => (
           <Marker
-            position={[city.position.lat, city.position.lng]}
+            position={[city.position?.lat, city.position?.lng]}
             key={city.id}
           >
             <Popup>

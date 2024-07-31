@@ -2,15 +2,18 @@ import { Link } from "react-router-dom";
 import styles from "./CityItem.module.css";
 import { useCities } from "../contexts/CitiesContext";
 
-const formatDate = (date) =>
-  new Intl.DateTimeFormat("en", {
+const formatDate = (date) => {
+  console.log("Date to format:", date);
+  return new Intl.DateTimeFormat("en", {
     day: "numeric",
     month: "long",
     year: "numeric",
     weekday: "long",
   }).format(new Date(date));
+};
 
 function CityItem({ city }) {
+  console.log(city);
   const { cityName, emoji, date, id, position } = city;
   const { currentCity, deleteCity } = useCities();
   function handleClick(e) {
@@ -20,7 +23,7 @@ function CityItem({ city }) {
   return (
     <li>
       <Link
-        to={`${id}?lat=${position.lat}&lng=${position.lng}`}
+        to={`${id}?lat=${position?.lat}&lng=${position?.lng}`}
         className={`${styles.cityItem} ${
           id === currentCity.id ? styles["cityItem--active"] : ""
         }`}
